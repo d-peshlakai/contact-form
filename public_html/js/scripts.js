@@ -1,3 +1,4 @@
+// @author Aaron Vanston
 
 $("#contactForm").submit(function(event){
 	// cancels the form submission

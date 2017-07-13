@@ -1,4 +1,7 @@
 <?php
+
+//@author Aaron Vanston
+//https://github.com/tutsplus/building-a-bootstrap-contact-form-using-php-and-ajax
 $name = $_POST["name"];
 $email = $_POST["email"];
 $message = $_POST["message"];
