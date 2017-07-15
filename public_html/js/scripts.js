@@ -1,28 +1,67 @@
-// @author Aaron Vanston
+	$(document).ready(function(){
 
-$("#contactForm").submit(function(event){
-	// cancels the form submission
-	event.preventDefault();
-	submitForm();
-});
+	/*validation*/
+	$("#contactForm").validate({
 
-function submitForm(){
-	// Initiate Variables With Form Content
-	var name = $("#name").val();
-	var email = $("#email").val();
-	var message = $("#message").val();
+		// setup handling of form errors
+		debug: true,
+		errorClass: "alert alert-danger",
+		errorLabelContainer: "#output-area",
+		errorElement: "div",
 
-	$.ajax({
-		type: "POST",
-		url: "php/process.php",
-		data: "name=" + name + "&email=" + email + "&message=" + message,
-		success : function(text){
-			if (text == "success"){
-				formSuccess();
+		// rules define what is good/bad input
+		// each rule starts with the form input element's NAME attribute
+		rules: {
+			name: {
+				required: true,
+				maxlength: 45
+			},
+			email: {
+				email: true,
+				required: true
+			},
+			message: {
+				required: true,
+				minlength: 2,
+				maxlength: 10
 			}
+		},
+
+		// error messages to display to the end user
+		messages: {
+			name: {
+				required: "Please enter name."
+			},
+			email: {
+				email: "Please enter a valid email address.",
+				required: "Please enter a valid email address."
+			},
+			message: {
+				required: "Please enter a message.",
+				minlength: "Please enter a message.",
+				maxlength: "2000 characters max."
+			}
+		},
+		submitHandler: function(form) {
+			$("#contactForm").ajaxSubmit({
+				type: "POST",
+				url: $("#contactForm").attr("action"),
+
+				success: function(ajaxOutput) {
+					// clear the output area's formatting
+					$("#output-area").css("display", "");
+
+					// write the server's reply to the output area
+					$("#output-area").html(ajaxOutput);
+
+					// reset the form if it was successful
+					if($(".alert-success").length >= 1) {
+						$("contactForm")[0].reset();
+					}
+				}
+			})
 		}
-	});
-}
-function formSuccess(){
-	$( "#msgSubmit" ).removeClass( "hidden" );
-}
+
+	});/* end validate function */
+
+});/*end document.ready()*/
