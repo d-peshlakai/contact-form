@@ -3,14 +3,15 @@
 	/**
 	 * require all composer dependencies; requiring the autoload file loads all composer packages at once
 	 **/
-	require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
+	$loader = (__DIR__) . "/vendor/autoload.php";
 	/**
 	 * require mailer-config.php
 	 **/
-	require_once("mail-config.php");
+	require_once($loader);
 // verify user's reCAPTCHA input
 	$recaptcha = new \ReCaptcha\ReCaptcha($secret);
 	$resp = $recaptcha->verify($_POST["g-recaptcha-response"], $_SERVER["REMOTE_ADDR"]);
+
 	try {
 		// if reCAPTCHA error, output the error code to the user
 		if(!$resp->isSuccess()) {

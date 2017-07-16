@@ -22,8 +22,7 @@
 			},
 			message: {
 				required: true,
-				minlength: 50,
-
+				minlength: 50
 			}
 		},
 
@@ -44,23 +43,21 @@
 			}
 		},
 		submitHandler: function(form) {
-			$(form).ajaxSubmit({
-				data: $(form).serialize(),
+			$("#contact-form").ajaxSubmit({
 				type: "POST",
-				url: "scripts.js",
+				url: $("#contact-form").attr("action"),
 
-				success: function() {
-					$('#contact-form :input').attr('disabled', 'disabled');
-					$('#contact-form').fadeTo( "slow", 0.15, function() {
-						$(this).find(':input').attr('disabled', 'disabled');
-						$(this).find('label').css('cursor','default');
-						$('#success').fadeIn();
-					});
-				},
-				error: function() {
-					$('#contact').fadeTo( "slow", 0.15, function() {
-						$('#error').fadeIn();
-					});
+				success: function(ajaxOutput) {
+					// clear the output area's formatting
+					$("#output-area").css("display", "");
+
+					// write the server's reply to the output area
+					$("#output-area").html(ajaxOutput);
+
+					// reset the form if it was successful
+					if($(".alert-success").length >= 1) {
+						$("#contact-form")[0].reset();
+					}
 				}
 			})
 		}
