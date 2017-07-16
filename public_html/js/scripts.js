@@ -42,6 +42,7 @@
 				maxlength: "2000 characters max."
 			}
 		},
+
 		submitHandler: function(form) {
 			$("#contactForm").ajaxSubmit({
 				type: "POST",
@@ -49,7 +50,7 @@
 
 				success: function(ajaxOutput) {
 					// clear the output area's formatting
-					$("#output-area").css("display", "");
+					//$("#output-area").css("display", "");
 
 					// write the server's reply to the output area
 					$("#output-area").html(ajaxOutput);
