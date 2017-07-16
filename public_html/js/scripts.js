@@ -22,8 +22,8 @@
 			},
 			message: {
 				required: true,
-				minlength: 2,
-				maxlength: 10
+				minlength: 50,
+
 			}
 		},
 
@@ -39,26 +39,28 @@
 			},
 			message: {
 				required: "Please enter a message.",
-				minlength: "Please enter a message.",
+				minlength: "Please enter some more words.",
 				maxlength: "2000 characters max."
 			}
 		},
 		submitHandler: function(form) {
-			$("#contact-form").ajaxSubmit({
+			$(form).ajaxSubmit({
+				data: $(form).serialize(),
 				type: "POST",
-				url: $("#contact-form").attr("action"),
+				url: "scripts.js",
 
-				success: function(ajaxOutput) {
-					// clear the output area's formatting
-					$("#output-area").css("display", "");
-
-					// write the server's reply to the output area
-					$("#output-area").html(ajaxOutput);
-
-					// reset the form if it was successful
-					if($(".alert-success").length >= 1) {
-						$("#contactForm")[0].reset();
-					}
+				success: function() {
+					$('#contact-form :input').attr('disabled', 'disabled');
+					$('#contact-form').fadeTo( "slow", 0.15, function() {
+						$(this).find(':input').attr('disabled', 'disabled');
+						$(this).find('label').css('cursor','default');
+						$('#success').fadeIn();
+					});
+				},
+				error: function() {
+					$('#contact').fadeTo( "slow", 0.15, function() {
+						$('#error').fadeIn();
+					});
 				}
 			})
 		}

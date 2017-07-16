@@ -1,49 +1,68 @@
 <?php
 
-// Only process POST requests.
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	// Get the form fields and remove whitespace.
-	$name = strip_tags(trim($_POST["name"]));
-	$name = str_replace(array("\r","\n"),array(" "," "),$name);
-	$email = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
-	$message = trim($_POST["message"]);
+	/**
+	 * require all composer dependencies; requiring the autoload file loads all composer packages at once
+	 **/
+	require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
+	/**
+	 * require mailer-config.php
+	 **/
+	require_once("mail-config.php");
+// verify user's reCAPTCHA input
+	$recaptcha = new \ReCaptcha\ReCaptcha($secret);
+	$resp = $recaptcha->verify($_POST["g-recaptcha-response"], $_SERVER["REMOTE_ADDR"]);
+	try {
+		// if reCAPTCHA error, output the error code to the user
+		if(!$resp->isSuccess()) {
+			throw(new Exception("reCAPTCHA error!"));
+		}
+		// Get the form fields and remove whitespace.
+		$name = filter_input(INPUT_POST, "name", FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		$email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
+		$subject = filter_input(INPUT_POST, "subject", FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		$message = filter_input(INPUT_POST, "message", FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
 
-	// Check that data was sent to the mailer.
-	if ( empty($name) OR empty($message) OR !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		// Set a 400 (bad request) response code and exit.
-		http_response_code(400);
-		echo "Uh oh, There was a problem with your submission. Please complete the form and try again.";
-		exit;
+		//create Swift Message
+		$swiftMessage = new Swift_Message();
+
+		// attach the sender to the message
+		// this takes the form of an associative array where the Email is the key for the real name
+		$swiftMessage->setFrom([$email => $name]);
+
+		/**
+		 * attach the actual message to the message
+		 * here, we set two versions of the message: the HTML formatted message and a special filter_var()ed
+		 * version of the message that generates a plain text version of the HTML content
+		 * notice one tactic used is to display the entire $confirmLink to plain text; this lets users
+		 * who aren't viewing HTML content in Emails still access your links
+		 **/
+		$swiftMessage->setBody($message, "text/html");
+		$swiftMessage->addPart(html_entity_decode($message), "text/plain");
+
+		/**
+		 * send the Email via SMTP; the SMTP server here is configured to relay everything upstream via CNM
+		 * this default may or may not be available on all web hosts; consult their documentation/support for details
+		 * SwiftMailer supports many different transport methods; SMTP was chosen because it's the most compatible and has the best error handling
+		 * @see http://swiftmailer.org/docs/sending.html Sending Messages - Documentation - SwitftMailer
+		 **/
+		$smtp = new Swift_SmtpTransport("localhost", 25);
+		$mailer = new Swift_Mailer($smtp);
+		$numSent = $mailer->send($swiftMessage, $failedRecipients);
+
+		/**
+		 * the send method returns the number of recipients that accepted the Email
+		 * so, if the number attempted is not the number accepted, this is an Exception
+		 **/
+
+		if($numSent !== count($recipients)) {
+			// the $failedRecipients parameter passed in the send() method now contains contains an array of the Emails that failed
+			throw(new RuntimeException("unable to send email"));
+		}
+
+		// report a successful send
+		echo "<div class=\"alert alert-success\" role=\"alert\">Email successfully sent.</div>";
+
+	} catch(Exception $exception) {
+		echo "<div class=\"alert alert-danger\" role=\"alert\"><strong>Oh snap!</strong> Unable to send email: " . $exception->getMessage() . "</div>";
 	}
 
-	// Set the recipient email address.
-	// FIXME: Update this to your desired email address.
-	$recipient = "dpeshlakai90@gmail.com";
-
-	// Set the email subject.
-	$subject = "New contact from $name";
-
-	// Build the email content.
-	$email_content = "Name: $name\n";
-	$email_content .= "Email: $email\n\n";
-	$email_content .= "Message:\n$message\n";
-
-	// Build the email headers.
-	$email_headers = "From: $name <$email>";
-
-	// Send the email.
-	if (mail($recipient, $subject, $email_content, $email_headers)) {
-		// Set a 200 (okay) response code.
-		http_response_code(200);
-		echo "Thank You! Your message has been sent.";
-	} else {
-		// Set a 500 (internal server error) response code.
-		http_response_code(500);
-		echo "Oops! Something went wrong and we couldn't send your message.";
-	}
-
-} else {
-	// Not a POST request, set a 403 (forbidden) response code.
-	http_response_code(403);
-	echo "There was a problem with your submission, please try again.";
-}
