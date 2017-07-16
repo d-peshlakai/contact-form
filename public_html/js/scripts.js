@@ -1,7 +1,7 @@
 	$(document).ready(function(){
 
 	/*validation*/
-	$("#contactForm").validate({
+	$("#contact-form").validate({
 
 		// setup handling of form errors
 		debug: true,
@@ -31,7 +31,7 @@
 		messages: {
 			name: {
 				required: "Please enter name.",
-				name:"Please enter name."
+				name: "Please enter name."
 			},
 			email: {
 				email: "Please enter a valid email address.",
@@ -43,22 +43,21 @@
 				maxlength: "2000 characters max."
 			}
 		},
-
 		submitHandler: function(form) {
-			$("#contactForm").ajaxSubmit({
+			$("#contact-form").ajaxSubmit({
 				type: "POST",
-				url: $("#contactForm").attr("action"),
+				url: $("#contact-form").attr("action"),
 
 				success: function(ajaxOutput) {
 					// clear the output area's formatting
-					//$("#output-area").css("display", "");
+					$("#output-area").css("display", "");
 
 					// write the server's reply to the output area
 					$("#output-area").html(ajaxOutput);
 
 					// reset the form if it was successful
 					if($(".alert-success").length >= 1) {
-						$("contactForm")[0].reset();
+						$("#contactForm")[0].reset();
 					}
 				}
 			})
