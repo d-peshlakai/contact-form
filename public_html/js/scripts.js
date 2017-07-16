@@ -30,7 +30,8 @@
 		// error messages to display to the end user
 		messages: {
 			name: {
-				required: "Please enter name."
+				required: "Please enter name.",
+				name:"Please enter name."
 			},
 			email: {
 				email: "Please enter a valid email address.",
