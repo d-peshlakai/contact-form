@@ -21,7 +21,7 @@ $(document).ready(function(){
 		var error_div = $(this).parent().find('.error_message');
 		var field_container = $(this).parent();
 		if (!$.email_validation($(this).val())) {
-			error_div.html('Expected Input: email');
+			error_div.html('Please enter email address');
 			error_div.css('display', 'block');
 			field_container.addClass('error');
 			errors = true;
