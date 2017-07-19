@@ -1,5 +1,5 @@
 <?php
-
+	print_r($_POST);
 	/**
 	 * require all composer dependencies; requiring the autoload file loads all composer packages at once
 	 **/
