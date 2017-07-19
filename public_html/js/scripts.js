@@ -34,7 +34,7 @@ $(document).ready(function(){
 	});
 	$('#contact-form').submit(function(event) {
 		event.preventDefault();
-		$('.required').parent().find('.input').trigger('blur');
+		$('.required').parent().find('.name').trigger('blur');
 		if (!errors)
 			$.ajax({
 				url: '/echo/json/',
@@ -44,13 +44,13 @@ $(document).ready(function(){
 				type: 'post',
 				success: function(data) {
 					var message = 'Hi '+data.name+'. Your message was sent and received.';
-					$('#msgSubmit').html(message);
-					$('#msgSubmit').css('display', 'block');
+					$('#contact-form').html(message);
+					$('#contact-form').css('display', 'block');
 				},
 				error: function() {
 					var message = 'Hi '+data.name+'. Your message could not be sent or received. Please try again later';
-					$('#form-submit').html(message);
-					$('#form-submit').css('display', 'block');
+					$('#contact-form').html(message);
+					$('#contact-form').css('display', 'block');
 				}
 			});
 		else
