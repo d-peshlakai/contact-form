@@ -37,13 +37,13 @@ $(document).ready(function(){
 		$('.required').parent().find('.name').trigger('blur');
 		if (!errors)
 			$.ajax({
-				url: '/echo/json/',
+				url: 'js/scripts.js',
 				data: {
 					json: JSON.stringify($(this).serializeObject())
 				},
 				type: 'post',
 				success: function(data) {
-					var message = 'Hi '+data.name+'. Your message was sent and received.';
+					var message = 'Your message was sent and received.';
 					$('#contact-form').html(message);
 					$('#contact-form').css('display', 'block');
 				},
