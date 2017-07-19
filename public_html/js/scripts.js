@@ -1,67 +1,85 @@
-	$(document).ready(function(){
+/*author: https://www.123contactform.com/jquery-contact-form.htm8*/
 
-	/*validation*/
-	$("#contact-form").validate({
-
-		// setup handling of form errors
-		debug: true,
-		errorClass: "alert alert-danger",
-		errorLabelContainer: "#output-area",
-		errorElement: "div",
-
-		// rules define what is good/bad input
-		// each rule starts with the form input element's NAME attribute
-		rules: {
-			name: {
-				required: true,
-				maxlength: 45
-			},
-			email: {
-				email: true,
-				required: true
-			},
-			message: {
-				required: true,
-				minlength: 50
-			}
-		},
-
-		// error messages to display to the end user
-		messages: {
-			name: {
-				required: "Please enter name.",
-				name: "Please enter name."
-			},
-			email: {
-				email: "Please enter a valid email address.",
-				required: "Please enter a valid email address."
-			},
-			message: {
-				required: "Please enter a message.",
-				minlength: "Please enter some more words.",
-				maxlength: "2000 characters max."
-			}
-		},
-		submitHandler: function(form) {
-			$("#contact-form").ajaxSubmit({
-				type: "POST",
-				url: $("#contact-form").attr("action"),
-
-				success: function(ajaxOutput) {
-					// clear the output area's formatting
-					$("#output-area").css("display", "");
-
-					// write the server's reply to the output area
-					$("#output-area").html(ajaxOutput);
-
-					// reset the form if it was successful
-					if($(".alert-success").length >= 1) {
-						$("#contact-form")[0].reset();
-					}
-				}
-			})
+$(document).ready(function(){
+	var errors = false;
+	$('.h4').parent().find('.form-control').on('blur', function() {
+		var error_div = $(this).parent().find('.error_message');
+		var field_container = $(this).parent();
+		if (!$.empty_field_validation($(this).val())) {
+			error_div.html('This field is required.');
+			error_div.css('display', 'block');
+			field_container.addClass('error');
+			errors = true;
+		} else {
+			error_div.html('');
+			error_div.css('display', 'none');
+			field_container.removeClass('error');
+			errors = false;
 		}
+	});
+	$('#email').on('blur', function(){
+		var error_div = $(this).parent().find('.error_message');
+		var field_container = $(this).parent();
+		if (!$.email_validation($(this).val())) {
+			error_div.html('Expected Input: email');
+			error_div.css('display', 'block');
+			field_container.addClass('error');
+			errors = true;
+		} else {
+			error_div.html('');
+			error_div.css('display', 'none');
+			field_container.removeClass('error');
+			errors = false;
+		}
+	});
+	$('#contact-form').submit(function(event) {
+		event.preventDefault();
+		$('.required').parent().find('.input').trigger('blur');
+		if (!errors)
+			$.ajax({
+				url: '/echo/json/',
+				data: {
+					json: JSON.stringify($(this).serializeObject())
+				},
+				type: 'post',
+				success: function(data) {
+					var message = 'Hi '+data.name+'. Your message was sent and received.';
+					$('#msgSubmit').html(message);
+					$('#msgSubmit').css('display', 'block');
+				},
+				error: function() {
+					var message = 'Hi '+data.name+'. Your message could not be sent or received. Please try again later';
+					$('#form-submit').html(message);
+					$('#form-submit').css('display', 'block');
+				}
+			});
+		else
+			alert("You didn't completed the form correctly. Check it out and try again!");
+	});
+});
 
-	});/* end validate function */
+$.empty_field_validation = function(field_value) {
+	if (field_value.trim() == '') return false;
+	return true;
+}
 
-});/*end document.ready()*/
+$.email_validation = function(email) {
+	var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	return regex.test(email);
+}
+$.fn.serializeObject = function()
+{
+	var o = {};
+	var a = this.serializeArray();
+	$.each(a, function() {
+		if (o[this.name]) {
+			if (!o[this.name].push) {
+				o[this.name] = [o[this.name]];
+			}
+			o[this.name].push(this.value || '');
+		} else {
+			o[this.name] = this.value || '';
+		}
+	});
+	return o;
+};
