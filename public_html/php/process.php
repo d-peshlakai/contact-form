@@ -54,6 +54,21 @@
 		 * the send method returns the number of recipients that accepted the Email
 		 * so, if the number attempted is not the number accepted, this is an Exception
 		 **/
+		//if "email" variable is filled out, send email
+		if (isset($_REQUEST['email']))  {
+
+	  //Email information
+	  $admin_email = "dpeshlakai90@gmail.com";
+	  $email = $_REQUEST['email'];
+	  $message = $_REQUEST['message'];
+
+	  //send email
+	  mail($admin_email, $message, "From:" . $email);
+
+	  //Email response
+	  echo "Thank you for contacting me!";
+  }
+
 
 		if($numSent !== count($recipients)) {
 			// the $failedRecipients parameter passed in the send() method now contains contains an array of the Emails that failed
