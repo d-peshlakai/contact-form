@@ -62,10 +62,12 @@
 	  $email = $_REQUEST['email'];
 	  $message = $_REQUEST['message'];
 
-	  //send email
-	  mail($admin_email, $message, "From:" . $email);
+			$to = 'dpeshlakai90@gmail.com';
+			$from = 'peshwebdev@gmail.com';
+			$message = 'test body';
+			$mail = new Mail($to, $from, $message);
+			$mail->send();
 
-	  //Email response
 	  echo "Thank you for contacting me!";
   }
 
